@@ -62,6 +62,7 @@
     <mesh name="right_wrist_roll_link" file="right_wrist_roll_link.STL"/>
     <mesh name="head_pitch_link" file="head_pitch_link.STL"/>
     <mesh name="head_yaw_link" file="head_yaw_link.STL"/>
+    <mesh name="camera_link" file="camera_link.STL"/>
   </asset>
 
   <worldbody>
@@ -165,13 +166,10 @@
         <joint name="waist_roll_joint" pos="0 0 0" axis="1 0 0" range="-0.5236 0.5236"/>
         <geom pos="0.0325 0 0.049" class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="waist_roll_link"/>
         <body name="torso_link" pos="0.0325 0 0.049">
-          <inertial pos="0.000409289 -0.000333222 0.181216" quat="0.999992 -0.000325591 0.00182329 -0.00361781" mass="7.3387" diaginertia="0.110151 0.10028 0.0271256"/>
+          <inertial pos="-0.000648 -5.2e-05 0.144497" quat="0.999887 -0.00306535 -0.0143494 -0.00317387" mass="6.3242" diaginertia="0.0609794 0.0506456 0.024571"/>
           <joint name="waist_yaw_joint" pos="0 0 0" axis="0 0 1" range="-2.618 2.618"/>
           <geom class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="waist_yaw_link"/>
-          <geom pos="-0.006 0.03155 0.255" class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="head_pitch_link"/>
-          <geom pos="-0.0049874 0 0.3715" quat="1 0 0 0" class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="head_yaw_link"/>
           <geom name="torso_collision" class="collision" size="0.08" fromto="-0.02 0 0.1 -0.02 0 0.15"/>
-          <geom name="head_collision" class="collision" type="sphere" size="0.055" pos="0.015 0 0.35"/>
           <body name="left_shoulder_pitch_link" pos="0 0.085688 0.19749" quat="0.99144 0.130561 0 0">
             <inertial pos="0.00294386 0.0447687 -0.0228687" quat="0.933514 0.315801 -0.107611 0.131308" mass="0.83795" diaginertia="0.000664554 0.000644431 0.000530845"/>
             <joint name="left_shoulder_pitch_joint" pos="0 0 0" axis="0 1 0" range="-3.1416 2.0944"/>
@@ -230,13 +228,23 @@
               </body>
             </body>
           </body>
+          <body name="head_pitch_link" pos="-0.006 0.03155 0.255">
+            <inertial pos="-6.956e-05 -0.0307797 0.0805859" quat="0.999952 0.00642085 -0.00613861 -0.00401818" mass="0.503913" diaginertia="0.00096003 0.000913512 0.000453408"/>
+            <joint name="head_pitch_joint" pos="0 0 0" axis="0 1 0" range="-0.62832 0.62832"/>
+            <geom class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="head_pitch_link"/>
+            <body name="head_yaw_link" pos="0.0010126 -0.03155 0.1165">
+              <inertial pos="0.0222914 -4.71023e-05 0.00190762" quat="0.00116417 0.900715 0.00239514 0.434401" mass="0.716562" diaginertia="0.00205935 0.00203322 0.00144568"/>
+              <joint name="head_yaw_joint" pos="0 0 0" axis="0 0 1" range="-2.0071 2.0071"/>
+              <geom class="visual" rgba="0.79216 0.81961 0.93333 1" mesh="head_yaw_link"/>
+              <geom pos="0.066971 0 -0.021637" quat="0.984807 0 0.17365 0" class="visual" rgba="0.7 0.7 0.7 1" mesh="camera_link"/>
+              <geom name="head_collision" class="collision" type="sphere" size="0.055" pos="0.02 0 -0.0215"/>
+            </body>
+          </body>
         </body>
       </body>
     </body>
   </worldbody>
   <contact>
-    <exclude body1="left_elbow_link" body2="left_wrist_pitch_link"/>
-    <exclude body1="right_elbow_link" body2="right_wrist_pitch_link"/>
     <exclude body1="pelvis" body2="right_hip_roll_link"/>
     <exclude body1="pelvis" body2="left_hip_roll_link"/>
   </contact>
