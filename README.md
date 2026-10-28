@@ -101,7 +101,7 @@ Available tasks:
   - Unitree-G1-23Dof-Tracking-No-State-Estimation
   - Unitree-R1-Tracking-No-State-Estimation
 
-#### 2.3 Unitree R1 from Axis Studio (Perception Neuron) captures
+#### 2.3 Unitree R1 from Axis Neuron (Perception Neuron) captures
 
 The R1 model is the 26-DoF version (including head pitch and yaw). Retarget and clean the capture with [GMR](https://github.com/KWoolf/GMR) first:
 
