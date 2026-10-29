@@ -1,12 +1,23 @@
+# Motor arrays below are indexed by SDK motor slot (35 slots, see
+# unitree_sdk2/include/unitree/dds_wrapper/robots/r1/defines.h). The R1 uses
+# slots 0-13 (legs, waist roll, waist yaw), 15-19 (left arm), 22-26 (right arm)
+# and 29-30 (head pitch, head yaw). Slots 14, 20, 21, 27 and 28 are unused.
 FSM:
   _: # enabled fsms
     Passive:
       id: 1
     FixStand:
       id: 2
-    Velocity:
-      id: 3
-      type: RLBase
+    # Velocity needs a 26-joint velocity policy in config/policy/velocity/<run>/
+    # exported; v0 there only holds params for the old 24-joint model and the
+    # controller aborts at start-up if this state is enabled without one.
+    # Velocity:
+    #   id: 3
+    #   type: RLBase
+    Mimic:
+      id: 5
+      type: Mimic
+
   Passive:
     transitions: 
       FixStand: LT + up.on_pressed
@@ -17,19 +28,24 @@ FSM:
       1,1,1,1,1,
       1,1,
       1,1,1,1,1,
+      1,1,
+      1,1,
     ]
     kd: [
       3,3,3,3,3,3,
       3,3,3,3,3,3,
       3,3,3,
-      3,3,3,3,3,3,3,
+      3,3,3,3,3,
       3,3,
-      3,3,3,3,3,3,3,
+      3,3,3,3,3,
+      0,0,
+      1,0.1,
     ]
   FixStand:
     transitions: 
       Passive: LT + B.on_pressed
       Velocity: RT + A.on_pressed
+      Mimic: RB + A.on_pressed
     kp: [
       100, 100, 100, 150, 40, 40,
       100, 100, 100, 150, 40, 40,
@@ -37,6 +53,8 @@ FSM:
       40,40,40,40,40,
       100,100,
       40,40,40,40,40,
+      0,0,
+      20,2,
     ]
     kd: [
       2,2,2,4,2,2,
@@ -45,6 +63,8 @@ FSM:
       10,10,10,10,10,
       4,4,
       10,10,10,10,10,
+      0,0,
+      1,0.1,
     ]
     ts: [0, 3]
     qs: [
@@ -55,9 +75,27 @@ FSM:
         0.35, 0.18,0,0.87,0,
         0,0,
         0.35,-0.18,0,0.87,0,
+        0,0,
+        0,0,
       ]
     ]
   Velocity:
     transitions: 
       Passive: LT + B.on_pressed
+      Mimic: RB + A.on_pressed
     policy_dir: config/policy/velocity
+
+  # Motion tracking policy trained with mjlab's
+  # Mjlab-Tracking-Flat-Unitree-R1-No-State-Estimation task. Fill the policy
+  # directory with scripts/export_mimic_policy.py. At the end of the motion the
+  # controller returns to FixStand; LT + B drops to Passive at any time, and
+  # State_Mimic drops to Passive if the pelvis tilts past 1 rad.
+  Mimic:
+    transitions:
+      Passive: LT + B.on_pressed
+      FixStand: LT + up.on_pressed
+    motion_file: config/policy/mimic/current/params/motion.npz
+    policy_dir: config/policy/mimic/current/
+    time_start: 0.0
+    time_end: 1000.0
+    end_state: FixStand

@@ -99,6 +99,24 @@ python scripts/train.py Unitree-G1-Tracking-No-State-Estimation --motion_file=sr
 Available tasks:
   - Unitree-G1-Tracking-No-State-Estimation
   - Unitree-G1-23Dof-Tracking-No-State-Estimation
+  - Unitree-R1-Tracking-No-State-Estimation
+
+#### 2.3 Unitree R1 from Axis Neuron (Perception Neuron) captures
+
+The R1 model is the 26-DoF version (including head pitch and yaw). Retarget and clean the capture with [GMR](https://github.com/KWoolf/GMR) first:
+
+```bash
+# in the GMR repository
+uv run scripts/axis_bvh_to_robot.py --bvh_file <take>.bvh --robot unitree_r1 --headless --save_path out/<take>.pkl
+uv run scripts/robot_motion_to_csv.py --motion_file out/<take>.pkl --csv_path out/<take>.csv
+```
+
+Then convert and train here:
+
+```bash
+python scripts/csv_to_npz.py --robot r1 --input-file <path>/<take>.csv --output-name <take>.npz --input-fps 50 --output-fps 50
+python scripts/train.py Unitree-R1-Tracking-No-State-Estimation --motion_file=src/assets/motions/r1/<take>.npz --env.scene.num-envs=4096 --agent.logger tensorboard
+```
 
 </div>
 

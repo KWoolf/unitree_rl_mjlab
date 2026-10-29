@@ -4,6 +4,7 @@
 #include <boost/program_options.hpp>
 #include <yaml-cpp/yaml.h>
 #include <filesystem>
+#include <vector>
 
 namespace param
 {
@@ -26,6 +27,10 @@ inline struct SimulationConfig
     int enable_elastic_band;
     int band_attached_link = 0;
 
+    // SDK motor slot for each actuator, in actuator order. Empty means actuator i
+    // is slot i, which holds for every robot except the R1.
+    std::vector<int> motor_slots;
+
     void load_from_yaml(const std::string &filename)
     {
         auto cfg = YAML::LoadFile(filename);
@@ -41,6 +46,9 @@ inline struct SimulationConfig
             joystick_bits = cfg["joystick_bits"].as<int>();
             print_scene_information = cfg["print_scene_information"].as<int>();
             enable_elastic_band = cfg["enable_elastic_band"].as<int>();
+            if (cfg["motor_slots"]) {
+                motor_slots = cfg["motor_slots"].as<std::vector<int>>();
+            }
         }
         catch(const std::exception& e)
         {
