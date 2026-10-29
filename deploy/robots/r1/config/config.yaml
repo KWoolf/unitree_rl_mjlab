@@ -88,9 +88,8 @@ FSM:
   # Motion tracking policy trained with mjlab's
   # Mjlab-Tracking-Flat-Unitree-R1-No-State-Estimation task. Fill the policy
   # directory with scripts/export_mimic_policy.py. At the end of the motion the
-  # controller returns to FixStand; LT + B drops to Passive at any time. The
-  # tilt check registered in State_Mimic is a no-op while bad_orientation in
-  # isaaclab/envs/mdp/terminations.h is stubbed to return false.
+  # controller returns to FixStand; LT + B drops to Passive at any time, and
+  # State_Mimic drops to Passive if the pelvis tilts past 1 rad.
   Mimic:
     transitions:
       Passive: LT + B.on_pressed

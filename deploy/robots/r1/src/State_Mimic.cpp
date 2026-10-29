@@ -129,7 +129,15 @@ State_Mimic::State_Mimic(int state_mode, std::string state_string)
     );
     this->registered_checks.emplace_back(
         std::make_pair(
-            [&]()->bool{ return isaaclab::mdp::bad_orientation(env.get(), 1.0); }, // bad orientation
+            // Fall check: the pelvis IMU tilted more than 1 rad from upright.
+            // The shared isaaclab::mdp::bad_orientation is stubbed to return
+            // false. Read straight from lowstate so the check does not depend
+            // on the policy thread having updated the articulation yet.
+            []()->bool{
+                const auto & q = FSMState::lowstate->msg_.imu_state().quaternion();
+                const float cos_tilt = 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]);
+                return std::acos(std::clamp(cos_tilt, -1.0f, 1.0f)) > 1.0f;
+            },
             FSMStringMap.right.at("Passive")
         )
     );
