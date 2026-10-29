@@ -73,6 +73,7 @@ public:
 protected:
     int num_motor_ = 0;
     int dim_motor_sensor_ = 0;
+    std::vector<int> motor_slots_; // SDK motor slot of each actuator
 
     mjData *mj_data_;
     mjModel *mj_model_;
@@ -94,6 +95,16 @@ protected:
     {
         num_motor_ = mj_model_->nu;
         dim_motor_sensor_ = MOTOR_SENSOR_NUM * num_motor_;
+
+        motor_slots_ = param::config.motor_slots;
+        if (motor_slots_.empty()) {
+            for (int i = 0; i < num_motor_; i++) motor_slots_.push_back(i);
+        }
+        if (motor_slots_.size() != num_motor_) {
+            std::cerr << "motor_slots has " << motor_slots_.size() << " entries but the scene has "
+                      << num_motor_ << " actuators." << std::endl;
+            exit(EXIT_FAILURE);
+        }
     
         // Find sensor addresses by name
         int sensor_id = -1;
@@ -179,7 +190,7 @@ public:
         {
             std::lock_guard<std::mutex> lock(lowcmd->mutex_);
             for(int i(0); i<num_motor_; i++) {
-                auto & m = lowcmd->msg_.motor_cmd()[i];
+                auto & m = lowcmd->msg_.motor_cmd()[motor_slots_[i]];
                 mj_data_->ctrl[i] = m.tau() +
                                     m.kp() * (m.q() - mj_data_->sensordata[i]) +
                                     m.kd() * (m.dq() - mj_data_->sensordata[i + num_motor_]);
@@ -189,9 +200,10 @@ public:
         // lowstate
         if(lowstate->trylock()) {
             for(int i(0); i<num_motor_; i++) {
-                lowstate->msg_.motor_state()[i].q() = mj_data_->sensordata[i];
-                lowstate->msg_.motor_state()[i].dq() = mj_data_->sensordata[i + num_motor_];
-                lowstate->msg_.motor_state()[i].tau_est() = mj_data_->sensordata[i + 2 * num_motor_];
+                auto & ms = lowstate->msg_.motor_state()[motor_slots_[i]];
+                ms.q() = mj_data_->sensordata[i];
+                ms.dq() = mj_data_->sensordata[i + num_motor_];
+                ms.tau_est() = mj_data_->sensordata[i + 2 * num_motor_];
             }
             
             if(imu_quat_adr_ >= 0) {

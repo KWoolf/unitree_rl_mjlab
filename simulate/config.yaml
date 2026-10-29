@@ -8,6 +8,11 @@ robot_scene: "src/assets/robots/unitree_g1/xmls/scene_g1.xml"
 #robot_scene: "src/assets/robots/unitree_go2/xmls/scene_go2.xml"
 #robot: "a2"
 #robot_scene: "src/assets/robots/unitree_a2/xmls/scene_a2.xml"
+#robot: "r1"
+#robot_scene: "src/assets/robots/unitree_r1/xmls/scene_r1.xml"
+# The R1's 26 joints are not on consecutive SDK motor slots, so uncomment this
+# with the R1 lines above. It lists the slot for each actuator in scene_r1.xml.
+#motor_slots: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,18,19,22,23,24,25,26,29,30]
 
 domain_id: 0  # Domain id
 interface: "lo" # Interface

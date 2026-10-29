@@ -14,13 +14,16 @@ public:
     
     void enter()
     {
-        // set gain
+        // set gain. Gains are in policy joint order; joint_ids_map gives the
+        // motor slot for each, which is not the identity on every robot (R1).
+        const auto & ids = env->robot->data.joint_ids_map;
         for (int i = 0; i < env->robot->data.joint_stiffness.size(); ++i)
         {
-            lowcmd->msg_.motor_cmd()[i].kp() = env->robot->data.joint_stiffness[i];
-            lowcmd->msg_.motor_cmd()[i].kd() = env->robot->data.joint_damping[i];
-            lowcmd->msg_.motor_cmd()[i].dq() = 0;
-            lowcmd->msg_.motor_cmd()[i].tau() = 0;
+            auto & motor = lowcmd->msg_.motor_cmd()[static_cast<int>(ids[i])];
+            motor.kp() = env->robot->data.joint_stiffness[i];
+            motor.kd() = env->robot->data.joint_damping[i];
+            motor.dq() = 0;
+            motor.tau() = 0;
         }
 
         env->robot->update();

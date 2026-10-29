@@ -8,9 +8,12 @@ FSM:
       id: 1
     FixStand:
       id: 2
-    Velocity:
-      id: 3
-      type: RLBase
+    # Velocity needs a 26-joint velocity policy in config/policy/velocity/<run>/
+    # exported; v0 there only holds params for the old 24-joint model and the
+    # controller aborts at start-up if this state is enabled without one.
+    # Velocity:
+    #   id: 3
+    #   type: RLBase
     Mimic:
       id: 5
       type: Mimic
@@ -85,8 +88,9 @@ FSM:
   # Motion tracking policy trained with mjlab's
   # Mjlab-Tracking-Flat-Unitree-R1-No-State-Estimation task. Fill the policy
   # directory with scripts/export_mimic_policy.py. At the end of the motion the
-  # controller returns to FixStand; LT + B drops to Passive at any time, and
-  # the policy also drops to Passive if the torso tilts past 1 rad.
+  # controller returns to FixStand; LT + B drops to Passive at any time. The
+  # tilt check registered in State_Mimic is a no-op while bad_orientation in
+  # isaaclab/envs/mdp/terminations.h is stubbed to return false.
   Mimic:
     transitions:
       Passive: LT + B.on_pressed
