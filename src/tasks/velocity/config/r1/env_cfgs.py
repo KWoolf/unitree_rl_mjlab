@@ -109,6 +109,8 @@ def unitree_r1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     r".*shoulder_yaw.*": 0.1,
     r".*elbow.*": 0.1,
     r".*wrist.*": 0.1,
+    # Head.
+    r"head_.*": 0.1,
   }
   cfg.rewards["pose"].params["std_running"] = {
     # Lower body.
@@ -127,6 +129,8 @@ def unitree_r1_rough_env_cfg(play: bool = False) -> ManagerBasedRlEnvCfg:
     r".*shoulder_yaw.*": 0.1,
     r".*elbow.*": 0.1,
     r".*wrist.*": 0.1,
+    # Head.
+    r"head_.*": 0.1,
   }
 
   cfg.rewards["body_orientation_l2"].params["asset_cfg"].body_names = ("torso_link",)

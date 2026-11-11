@@ -88,6 +88,22 @@ R1_ACTUATOR_WRIST = BuiltinPositionActuatorCfg(
   effort_limit=33.0,
   armature=0.01,
 )
+# The head pitch motor matches the arm motors; head yaw is a small servo
+# (0.86 Nm in Unitree's URDF), so its gains are kept low.
+R1_ACTUATOR_HEAD_PITCH = BuiltinPositionActuatorCfg(
+  target_names_expr=("head_pitch_joint",),
+  stiffness=20.0,
+  damping=1.0,
+  effort_limit=33.0,
+  armature=0.01,
+)
+R1_ACTUATOR_HEAD_YAW = BuiltinPositionActuatorCfg(
+  target_names_expr=("head_yaw_joint",),
+  stiffness=2.0,
+  damping=0.1,
+  effort_limit=0.86,
+  armature=0.001,
+)
 
 
 ##
@@ -154,6 +170,8 @@ R1_ARTICULATION = EntityArticulationInfoCfg(
     R1_ACTUATOR_WAIST,
     R1_ACTUATOR_ARM,
     R1_ACTUATOR_WRIST,
+    R1_ACTUATOR_HEAD_PITCH,
+    R1_ACTUATOR_HEAD_YAW,
   ),
   soft_joint_pos_limit_factor=0.9,
 )

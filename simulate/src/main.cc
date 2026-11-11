@@ -631,6 +631,17 @@ void user_key_cb(GLFWwindow* window, int key, int scancode, int act, int mods) {
         elastic_band.length_ += 0.1;
       }
     }
+    if(keyboard_joystick) {
+      if (key==GLFW_KEY_1) {
+        keyboard_joystick->press(KeyboardJoystick::LT_UP);
+      } else if (key==GLFW_KEY_2) {
+        keyboard_joystick->press(KeyboardJoystick::RB_A);
+      } else if (key==GLFW_KEY_0) {
+        keyboard_joystick->press(KeyboardJoystick::LT_B);
+      } else if (key==GLFW_KEY_3) {
+        keyboard_joystick->press(KeyboardJoystick::RB_X);
+      }
+    }
     if(key==GLFW_KEY_BACKSPACE) {
       mj_resetData(m, d);
       mj_forward(m, d);
