@@ -89,7 +89,9 @@ FSM:
   # Mjlab-Tracking-Flat-Unitree-R1-No-State-Estimation task. Fill the policy
   # directory with scripts/export_mimic_policy.py. At the end of the motion the
   # controller returns to FixStand; LT + B drops to Passive at any time, and
-  # State_Mimic drops to Passive if the pelvis tilts past 1 rad.
+  # State_Mimic drops to Passive if the pelvis tilts past max_tilt (radians).
+  # fall_check sets whether that check starts on; fall_check_toggle switches it
+  # on and off during the motion (key 3 in the simulator's keyboard mode).
   Mimic:
     transitions:
       Passive: LT + B.on_pressed
@@ -99,3 +101,6 @@ FSM:
     time_start: 0.0
     time_end: 1000.0
     end_state: FixStand
+    fall_check: true
+    max_tilt: 1.0
+    fall_check_toggle: RB + X.on_pressed

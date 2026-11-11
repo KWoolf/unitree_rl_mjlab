@@ -98,7 +98,7 @@ private:
 class KeyboardJoystick : public unitree::common::UnitreeJoystick
 {
 public:
-    enum Combo { NONE, LT_UP, RB_A, LT_B };
+    enum Combo { NONE, LT_UP, RB_A, LT_B, RB_X };
 
     void press(Combo combo)
     {
@@ -116,8 +116,9 @@ public:
         LT((combo == LT_UP || combo == LT_B) ? 1.0 : 0.0);
         up(combo == LT_UP && second);
         B(combo == LT_B && second);
-        RB(combo == RB_A);
+        RB(combo == RB_A || combo == RB_X);
         A(combo == RB_A);
+        X(combo == RB_X);
     }
 
 private:

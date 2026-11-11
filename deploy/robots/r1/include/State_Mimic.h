@@ -29,6 +29,13 @@ private:
     std::thread policy_thread;
     bool policy_thread_running = false;
     std::array<float, 2> time_range_;
+
+    // Fall check settings. The flag keeps its value between runs of the
+    // motion, so a toggle lasts until it is pressed again or the controller
+    // restarts.
+    bool fall_check_ = true;
+    float max_tilt_ = 1.0f;
+    std::function<bool(const unitree::common::UnitreeJoystick &)> fall_check_toggle_;
 };
 
 

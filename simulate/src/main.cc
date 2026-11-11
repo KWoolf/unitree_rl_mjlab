@@ -638,6 +638,8 @@ void user_key_cb(GLFWwindow* window, int key, int scancode, int act, int mods) {
         keyboard_joystick->press(KeyboardJoystick::RB_A);
       } else if (key==GLFW_KEY_0) {
         keyboard_joystick->press(KeyboardJoystick::LT_B);
+      } else if (key==GLFW_KEY_3) {
+        keyboard_joystick->press(KeyboardJoystick::RB_X);
       }
     }
     if(key==GLFW_KEY_BACKSPACE) {

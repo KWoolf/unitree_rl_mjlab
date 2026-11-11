@@ -113,6 +113,20 @@ State_Mimic::State_Mimic(int state_mode, std::string state_string)
     if (cfg["end_state"]) {
         end_state = cfg["end_state"].as<std::string>();
     }
+    if (cfg["fall_check"]) {
+        fall_check_ = cfg["fall_check"].as<bool>();
+    }
+    if (cfg["max_tilt"]) {
+        max_tilt_ = cfg["max_tilt"].as<float>();
+    }
+    std::string toggle = "RB + X.on_pressed";
+    if (cfg["fall_check_toggle"]) {
+        toggle = cfg["fall_check_toggle"].as<std::string>();
+    }
+    unitree::common::dsl::Parser toggle_parser(toggle);
+    fall_check_toggle_ = unitree::common::dsl::Compile(*toggle_parser.Parse());
+    spdlog::info("Mimic fall check {} (limit {:.2f} rad, toggle with {})",
+                 fall_check_ ? "on" : "off", max_tilt_, toggle);
 
     env = std::make_unique<isaaclab::ManagerBasedRLEnv>(
         YAML::LoadFile(policy_dir / "params" / "deploy.yaml"),
@@ -129,14 +143,15 @@ State_Mimic::State_Mimic(int state_mode, std::string state_string)
     );
     this->registered_checks.emplace_back(
         std::make_pair(
-            // Fall check: the pelvis IMU tilted more than 1 rad from upright.
-            // The shared isaaclab::mdp::bad_orientation is stubbed to return
-            // false. Read straight from lowstate so the check does not depend
-            // on the policy thread having updated the articulation yet.
-            []()->bool{
+            // Fall check: the pelvis IMU tilted more than max_tilt from
+            // upright. The shared isaaclab::mdp::bad_orientation is stubbed to
+            // return false. Read straight from lowstate so the check does not
+            // depend on the policy thread having updated the articulation yet.
+            [this]()->bool{
+                if (!fall_check_) return false;
                 const auto & q = FSMState::lowstate->msg_.imu_state().quaternion();
                 const float cos_tilt = 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]);
-                return std::acos(std::clamp(cos_tilt, -1.0f, 1.0f)) > 1.0f;
+                return std::acos(std::clamp(cos_tilt, -1.0f, 1.0f)) > max_tilt_;
             },
             FSMStringMap.right.at("Passive")
         )
@@ -193,6 +208,11 @@ void State_Mimic::enter()
 
 void State_Mimic::run()
 {
+    if (fall_check_toggle_(FSMState::lowstate->joystick)) {
+        fall_check_ = !fall_check_;
+        spdlog::warn("Mimic fall check {}", fall_check_ ? "on" : "OFF");
+    }
+
     auto action = env->action_manager->processed_actions();
     for(int i(0); i < env->robot->data.joint_ids_map.size(); i++) {
         lowcmd->msg_.motor_cmd()[env->robot->data.joint_ids_map[i]].q() = action[i];
