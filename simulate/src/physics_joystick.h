@@ -4,6 +4,8 @@
 #include <unitree/dds_wrapper/common/unitree_joystick.hpp>
 #include "joystick/joystick.h"
 #include <memory>
+#include <atomic>
+#include <chrono>
 
 
 class XBoxJoystick : public unitree::common::UnitreeJoystick
@@ -88,3 +90,39 @@ private:
 	std::unique_ptr<Joystick> js_;
 	int max_value_;
 };
+
+// Stands in for a gamepad when none is available (for example under WSL):
+// keys pressed in the MuJoCo window play the button combinations the deploy
+// controllers listen for. LT is an axis that the SDK smooths, so it is held
+// for a moment before the second button goes down, as a person would.
+class KeyboardJoystick : public unitree::common::UnitreeJoystick
+{
+public:
+    enum Combo { NONE, LT_UP, RB_A, LT_B };
+
+    void press(Combo combo)
+    {
+        combo_ = combo;
+        t0_ = std::chrono::steady_clock::now().time_since_epoch().count();
+    }
+
+    void update() override
+    {
+        using namespace std::chrono;
+        const auto t0 = steady_clock::time_point(steady_clock::duration(t0_.load()));
+        const double t = duration<double>(steady_clock::now() - t0).count();
+        const Combo combo = t < 0.6 ? combo_.load() : NONE;
+        const bool second = t > 0.3;
+        LT((combo == LT_UP || combo == LT_B) ? 1.0 : 0.0);
+        up(combo == LT_UP && second);
+        B(combo == LT_B && second);
+        RB(combo == RB_A);
+        A(combo == RB_A);
+    }
+
+private:
+    std::atomic<Combo> combo_{NONE};
+    std::atomic<std::chrono::steady_clock::rep> t0_{0};
+};
+
+inline std::shared_ptr<KeyboardJoystick> keyboard_joystick = nullptr;
